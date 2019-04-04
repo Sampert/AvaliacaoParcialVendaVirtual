@@ -13,13 +13,13 @@ pipeline {
         stage('Docker Compile Class') {
             agent any
             steps {
-                sh 'cd AvaliacaoParcialVendaVirtual && docker run --rm -v $PWD:/app -w /app demo/oracle-java:8 javac TelaPrincipal.java'
+                sh 'cd AvaliacaoParcialVendaVirtual && docker run --rm -v $PWD:/app -w /app demo/oracle-java:8 javac ./src/View/TelaPrincipal.java'
             }
         }    
         stage('Docker Execute Java Class') {
             agent any
             steps {
-                sh 'cd AvaliacaoParcialVendaVirtual && docker run --rm -v $PWD:/app -w /app demo/oracle-java:8 javac Main.java && docker run --rm -v $PWD:/app -w /app demo/oracle-java:8 java TelaPrincipal'
+                sh 'cd AvaliacaoParcialVendaVirtual && docker run --rm -v $PWD:/app -w /app demo/oracle-java:8 javac Main.java && docker run --rm -v $PWD:/app -w /app demo/oracle-java:8 java ./src/View/TelaPrincipal.java'
             }
         }        
     }
