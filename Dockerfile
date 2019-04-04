@@ -1,17 +1,29 @@
-FROM tomcat:8.5
-MAINTAINER Tung Nguyen <tongueroo@gmail.com>
+FROM  phusion/baseimage:0.9.17
 
-# Debugging tools: A few ways to handle debugging tools.
-# Trade off is a slightly more complex volume mount vs keeping the image size down.
-RUN apt-get update && \
-  apt-get install -y \
-    net-tools \
-    tree \
-    vim && \
-  rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get purge
+MAINTAINER  Author Name <author@email.com>
 
-RUN echo "export JAVA_OPTS=\"-Dapp.env=staging\"" > /usr/local/tomcat/bin/setenv.sh
-COPY pkg/demo.war /usr/local/tomcat/webapps/demo.war
+RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
 
-EXPOSE 8080
-CMD ["catalina.sh", "run"]
+RUN apt-get -y update
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q python-software-properties software-properties-common
+
+ENV JAVA_VER 8
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+
+RUN echo 'deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main' >> /etc/apt/sources.list && \
+    echo 'deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main' >> /etc/apt/sources.list && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886 && \
+    apt-get update && \
+    echo oracle-java${JAVA_VER}-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections && \
+    apt-get install -y --force-yes --no-install-recommends oracle-java${JAVA_VER}-installer oracle-java${JAVA_VER}-set-default && \
+    apt-get clean && \
+    rm -rf /var/cache/oracle-jdk${JAVA_VER}-installer
+
+RUN update-java-alternatives -s java-8-oracle
+
+RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> ~/.bashrc
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+CMD ["/sbin/my_init"]
